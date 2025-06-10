@@ -1,12 +1,16 @@
 package com.example.expense_tracker.Service;
 
+import com.example.expense_tracker.DTO.CategoryRequestDTO;
+import com.example.expense_tracker.DTO.CategoryResponseDTO;
+import com.example.expense_tracker.Exception.AccessDeniedException;
 import com.example.expense_tracker.Model.Categories;
 import com.example.expense_tracker.Model.Users;
 import com.example.expense_tracker.Repository.CategoryRepo;
 import com.example.expense_tracker.Repository.UserRepo;
-import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -14,6 +18,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final UserRepo userRepo;
     private final CategoryRepo categoryRepo;
+
+    private static final Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
 
 
     public CategoryServiceImpl(UserRepo userRepo, CategoryRepo categoryRepo) {
@@ -31,33 +37,53 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Categories CreateCategory(String username, Categories category) {
-      Users user= getUserByUsername(username);
-               category.setUser(user);
-        return  categoryRepo.save(category);
+    public CategoryResponseDTO CreateCategory(String username, CategoryRequestDTO requestDTO) {
+        Users user= getUserByUsername(username);
+
+        Categories category=new Categories();
+        category.setName(requestDTO.getName());
+        category.setType(requestDTO.getType());
+        category.setUser(user);
+
+        Categories saved= categoryRepo.save(category);
+        return new CategoryResponseDTO(saved.getId(),saved.getName(),saved.getType());
 
     }
 
+
     @Override
-    public List<Categories> getAllCategories(String username) {
+    public List<CategoryResponseDTO> getAllCategories(String username) {
+
         Users user= getUserByUsername(username);
 
-        return categoryRepo.findByUser(user);
+        List<Categories> ls= categoryRepo.findByUser(user);
+        List<CategoryResponseDTO> dto=new ArrayList<>();
+
+         for (Categories cat: ls){
+             dto.add(new CategoryResponseDTO(cat.getId(), cat.getName(), cat.getType()));
+         }
+        return dto;
     }
 
     @Override
-    public Categories updateCategory(String username, Long categoryId, Categories updatedCategory) {
+    public CategoryResponseDTO updateCategory(String username,
+                                              Long categoryId,
+                                              CategoryRequestDTO updatedCategory) {
 
         Users user= getUserByUsername(username);
-        Categories existingCategories=  getCategoryById(categoryId);
+        Categories existingCategories= getCategoryById(categoryId);
 
         if(!existingCategories.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You are not allowed to update this category");
+            throw new AccessDeniedException("You are not allowed to update this category");
         }
 
-        existingCategories.setName(existingCategories.getName());
+        existingCategories.setName(updatedCategory.getName());
         existingCategories.setType(updatedCategory.getType());
-        return categoryRepo.save(existingCategories);
+
+        Categories saved = categoryRepo.save(existingCategories);
+        logger.info("Category '{}' created for user '{}'", saved.getName(), user.getUsername());
+
+        return new CategoryResponseDTO(saved.getId(), saved.getName(), saved.getType());
     }
 
     @Override
@@ -67,7 +93,7 @@ public class CategoryServiceImpl implements CategoryService {
         Categories category=  getCategoryById(categoryId);
 
         if(!category.getUser().getId().equals(user.getId())){
-            throw new RuntimeException("You are not allowed to delete this category");
+            throw new AccessDeniedException("You are not allowed to delete this category");
 
         }
         categoryRepo.deleteById(categoryId);

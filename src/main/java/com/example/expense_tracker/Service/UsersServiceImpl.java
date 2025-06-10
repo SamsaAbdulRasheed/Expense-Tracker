@@ -1,5 +1,6 @@
 package com.example.expense_tracker.Service;
 
+import com.example.expense_tracker.DTO.UserResponseDTO;
 import com.example.expense_tracker.Model.Users;
 import com.example.expense_tracker.Repository.UserRepo;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,9 @@ public class UsersServiceImpl implements UserService {
     }
 
     @Override
-    public Users saveUser(Users user) {
-        return userRepo.save(user);
+    public UserResponseDTO saveUser(Users user) {
+         Users saved= userRepo.save(user);
+        return new UserResponseDTO(saved.getId(),saved.getUsername(), saved.getEmail());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.example.expense_tracker.Controller;
 
+import com.example.expense_tracker.DTO.UserResponseDTO;
 import com.example.expense_tracker.Model.Users;
 import com.example.expense_tracker.Service.UsersServiceImpl;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +21,11 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Users> createUser(@RequestBody Users user){
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody Users user){
 
-        Users newUser=usersService.saveUser(user);
-        return ResponseEntity.ok(newUser);
+        UserResponseDTO newUser=usersService.saveUser(user);
+        UserResponseDTO dto = new UserResponseDTO(newUser.getId(), newUser.getUsername(), newUser.getEmail());
+        return ResponseEntity.ok(dto);
 
     }
 }

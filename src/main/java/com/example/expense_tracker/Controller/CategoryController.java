@@ -1,6 +1,7 @@
 package com.example.expense_tracker.Controller;
 
-import com.example.expense_tracker.Model.Categories;
+import com.example.expense_tracker.DTO.CategoryRequestDTO;
+import com.example.expense_tracker.DTO.CategoryResponseDTO;
 import com.example.expense_tracker.Service.CategoryServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,34 +19,36 @@ public class CategoryController {
     }
 
     @PostMapping("/{username}")
-    public ResponseEntity<Categories> createCategory(@PathVariable String username,
-                                         @RequestBody Categories category){
-        Categories createdCategory= categoryService.CreateCategory(username,category);
-        return ResponseEntity.ok(createdCategory);
+    public ResponseEntity<CategoryResponseDTO> createCategory(
+            @PathVariable String username,
+            @RequestBody CategoryRequestDTO requestDTO){
+        CategoryResponseDTO dto= categoryService.CreateCategory(username,requestDTO);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<List<Categories>> getAllCategories(@PathVariable String username){
-        List<Categories> categories= categoryService.getAllCategories(username);
-       return ResponseEntity.ok(categories);
+    public ResponseEntity<List<CategoryResponseDTO>> getAllCategories(
+            @PathVariable String username){
+        List<CategoryResponseDTO> categories= categoryService.getAllCategories(username);
+        return ResponseEntity.ok(categories);
     }
 
     @PutMapping("/{username}/{categoryId}")
-    public ResponseEntity<Categories> updateCategory(@PathVariable String username,
-                                                     @PathVariable Long categoryId,
-                                                     @RequestBody Categories updatedCategory){
-        Categories category= categoryService.updateCategory(username,categoryId,updatedCategory);
-        return ResponseEntity.ok(category);
+    public ResponseEntity<String> updateCategory(
+            @PathVariable String username,
+            @PathVariable Long categoryId,
+            @RequestBody CategoryRequestDTO updatedCategory){
+        CategoryResponseDTO category= categoryService.updateCategory(username,categoryId,updatedCategory);
+        return ResponseEntity.ok("Category updated successfully: " + category);
     }
 
     @DeleteMapping("/{username}/{categoryId}")
-    public ResponseEntity<String> deleteCategory(@PathVariable String username, @PathVariable Long categoryId){
-        try {
+    public ResponseEntity<String> deleteCategory(
+            @PathVariable String username,
+            @PathVariable Long categoryId){
             categoryService.deleteCategory(username,categoryId);
-            return ResponseEntity.ok("deleted Successfully");
+            return ResponseEntity.ok("Category Deleted Successfully");
 
-        } catch (Exception e) {
-            return  ResponseEntity.status(500).body("Deletion failed");
-        }
+
     }
 }

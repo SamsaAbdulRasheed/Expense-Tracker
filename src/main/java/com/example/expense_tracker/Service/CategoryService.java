@@ -1,13 +1,17 @@
 package com.example.expense_tracker.Service;
 
+import com.example.expense_tracker.DTO.CategoryRequestDTO;
+import com.example.expense_tracker.DTO.CategoryResponseDTO;
 import com.example.expense_tracker.Model.Categories;
 
 import java.util.List;
 
 public interface CategoryService {
 
-     Categories CreateCategory(String username, Categories category);
-     List<Categories> getAllCategories(String username);
-     Categories updateCategory(String useranme,Long categoryId, Categories updatedCategory);
+
+     CategoryResponseDTO CreateCategory(String username, CategoryRequestDTO requestDTO);
+
+     List<CategoryResponseDTO> getAllCategories(String username);
+     CategoryResponseDTO updateCategory(String username,Long categoryId, CategoryRequestDTO updatedCategory);
      void deleteCategory(String username,Long categoryId);
 }
