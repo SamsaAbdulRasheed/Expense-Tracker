@@ -2,8 +2,6 @@ package com.example.expense_tracker.Service;
 
 import com.example.expense_tracker.DTO.CategoryRequestDTO;
 import com.example.expense_tracker.DTO.CategoryResponseDTO;
-import com.example.expense_tracker.Model.Categories;
-
 import java.util.List;
 
 public interface CategoryService {

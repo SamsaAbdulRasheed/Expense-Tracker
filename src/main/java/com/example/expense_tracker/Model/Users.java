@@ -1,10 +1,15 @@
 package com.example.expense_tracker.Model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class Users {
@@ -20,45 +25,10 @@ public class Users {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Transaction> transaction = new ArrayList<>();
 
-    public Long getId() {
-        return id;
-    }
+    private String Password;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private String role;
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public List<Categories> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(List<Categories> categories) {
-        this.categories = categories;
-    }
-
-    public List<Transaction> getTransaction() {
-        return transaction;
-    }
-
-    public void setTransaction(List<Transaction> transaction) {
-        this.transaction = transaction;
-    }
 
     @Override
     public String toString() {
@@ -66,8 +36,11 @@ public class Users {
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
-                ", categories=" + categories +
+                ", categoriesCount=" + (categories != null ? categories.size() : 0) +
                 ", transaction=" + transaction +
+                ", Password='" + Password + '\'' +
                 '}';
     }
+
+
 }

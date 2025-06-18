@@ -7,8 +7,8 @@ import com.example.expense_tracker.Model.Categories;
 import com.example.expense_tracker.Model.Users;
 import com.example.expense_tracker.Repository.CategoryRepo;
 import com.example.expense_tracker.Repository.UserRepo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final UserRepo userRepo;
     private final CategoryRepo categoryRepo;
 
-    private static final Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
+//    private static final Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
 
 
     public CategoryServiceImpl(UserRepo userRepo, CategoryRepo categoryRepo) {
@@ -29,7 +29,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     public Users getUserByUsername(String username){
         return userRepo.findByUsername(username)
-                .orElseThrow(()-> new RuntimeException("User not found"));
+                .orElseThrow(()-> new UsernameNotFoundException("User not found"));
     }
     public Categories getCategoryById(Long categoryId){
         return categoryRepo.findById(categoryId)
@@ -81,7 +81,7 @@ public class CategoryServiceImpl implements CategoryService {
         existingCategories.setType(updatedCategory.getType());
 
         Categories saved = categoryRepo.save(existingCategories);
-        logger.info("Category '{}' created for user '{}'", saved.getName(), user.getUsername());
+//        logger.info("Category '{}' created for user '{}'", saved.getName(), user.getUsername());
 
         return new CategoryResponseDTO(saved.getId(), saved.getName(), saved.getType());
     }

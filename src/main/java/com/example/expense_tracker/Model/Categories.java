@@ -1,10 +1,15 @@
 package com.example.expense_tracker.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
 import com.example.expense_tracker.Model.Transaction.TransactionType;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 public class Categories {
 
@@ -29,45 +34,7 @@ in this case category in the transaction entity is the owning side because it ha
     private List<Transaction> transactions;
 
 
-    public List<Transaction> getTransactions() {
-        return transactions;
-    }
 
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
-    }
-
-    public Users getUser() {
-        return user;
-    }
-
-    public void setUser(Users user) {
-        this.user = user;
-    }
-
-    public TransactionType getType() {
-        return type;
-    }
-
-    public void setType(TransactionType type) {
-        this.type = type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     @Override
     public String toString() {
@@ -75,7 +42,7 @@ in this case category in the transaction entity is the owning side because it ha
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", type=" + type +
-                ", user=" + user +
+                ", userId=" + (user != null ? user.getId() : null) +
                 ", transactions=" + transactions +
                 '}';
     }
