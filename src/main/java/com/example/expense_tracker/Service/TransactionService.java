@@ -6,6 +6,7 @@ import com.example.expense_tracker.Model.Transaction;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface TransactionService {
 
@@ -14,4 +15,6 @@ public interface TransactionService {
     TransactionResponseDTO updateTransaction(String username,Long TransactionId, TransactionRequestDTO dto);
     void deleteTransaction(String username,Long transactionId);
     List<TransactionResponseDTO> getFilteredTransactions(String username, String type, String category, LocalDate startDate, LocalDate endDate);
+
+    Map getTransactionSummary(String username);
 }

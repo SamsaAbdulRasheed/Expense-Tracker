@@ -1,6 +1,7 @@
 package com.example.expense_tracker.DTO;
 
 
+import com.example.expense_tracker.Model.Transaction;
 import lombok.*;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class UserResponseDTO {
     private String password;
     private String role;
     private List<CategoryResponseDTO> categoriesList;
-//    private List<Transaction> transactionList;
+    private List<TransactionResponseDTO> transactionList;
 
 
 

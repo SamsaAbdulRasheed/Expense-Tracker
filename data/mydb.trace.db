@@ -384,3 +384,12 @@ Caused by: org.h2.mvstore.MVStoreException: The file is locked: C:/Users/samsa/D
 2025-06-10 20:24:04.369351-05:00 jdbc[13]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM [*]USER"; expected "identifier"; SQL statement:
 SELECT * FROM USER [42001-232]
+2025-06-17 21:34:39.632703-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM CATEGORIES \000d\000a[*]SELECT * FROM USERS"; SQL statement:
+SELECT * FROM CATEGORIES 
+SELECT * FROM USERS [42000-232]
+2025-06-18 20:30:09.703504-05:00 jdbc[23]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM TRANSACTION \000d\000a[*]SELECT * FROM USERS \000d\000aSELECT * FROM CATEGORIES"; SQL statement:
+SELECT * FROM TRANSACTION 
+SELECT * FROM USERS 
+SELECT * FROM CATEGORIES [42000-232]

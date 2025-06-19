@@ -1,7 +1,10 @@
 package com.example.expense_tracker.Mapper;
 
+import com.example.expense_tracker.DTO.TransactionRequestDTO;
 import com.example.expense_tracker.DTO.TransactionResponseDTO;
+import com.example.expense_tracker.Model.Categories;
 import com.example.expense_tracker.Model.Transaction;
+import com.example.expense_tracker.Model.Users;
 
 import java.util.List;
 
@@ -29,4 +32,15 @@ public class TransactionMapper {
 
     }
 
+    public static Transaction toEntity(TransactionRequestDTO requestDTO , Categories category , Users user) {
+        Transaction transaction = new Transaction();
+        transaction.setAmount(requestDTO.getAmount());
+        transaction.setDate(requestDTO.getDate());
+        transaction.setType(category.getType());
+        transaction.setNote(requestDTO.getNote());
+        transaction.setUser(user);
+        transaction.setCategory(category);
+return transaction;
+
+    }
 }

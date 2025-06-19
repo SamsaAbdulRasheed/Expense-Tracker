@@ -2,7 +2,9 @@ package com.example.expense_tracker.Service;
 
 import com.example.expense_tracker.DTO.CategoryRequestDTO;
 import com.example.expense_tracker.DTO.CategoryResponseDTO;
+import com.example.expense_tracker.DTO.TransactionResponseDTO;
 import com.example.expense_tracker.Exception.AccessDeniedException;
+import com.example.expense_tracker.Mapper.TransactionMapper;
 import com.example.expense_tracker.Model.Categories;
 import com.example.expense_tracker.Model.Users;
 import com.example.expense_tracker.Repository.CategoryRepo;
@@ -46,7 +48,11 @@ public class CategoryServiceImpl implements CategoryService {
         category.setUser(user);
 
         Categories saved= categoryRepo.save(category);
-        return new CategoryResponseDTO(saved.getId(),saved.getName(),saved.getType());
+        return new CategoryResponseDTO(
+                saved.getId(),
+                saved.getName(),
+                saved.getType(),
+                null);
 
     }
 
@@ -56,13 +62,21 @@ public class CategoryServiceImpl implements CategoryService {
 
         Users user= getUserByUsername(username);
 
-        List<Categories> ls= categoryRepo.findByUser(user);
-        List<CategoryResponseDTO> dto=new ArrayList<>();
+        List<Categories> categories= categoryRepo.findByUser(user);
 
-         for (Categories cat: ls){
-             dto.add(new CategoryResponseDTO(cat.getId(), cat.getName(), cat.getType()));
-         }
-        return dto;
+       return categories.stream()
+                .map(cat -> {
+                    List<TransactionResponseDTO> transaction = cat.getTransactions()
+                            .stream()
+                            .map(TransactionMapper::toDto)
+                            .toList();
+                  return  new CategoryResponseDTO(
+                        cat.getId(),
+                        cat.getName(),
+                        cat.getType(),
+                        transaction);
+                }).toList();
+
     }
 
     @Override
@@ -73,9 +87,11 @@ public class CategoryServiceImpl implements CategoryService {
         Users user= getUserByUsername(username);
         Categories existingCategories= getCategoryById(categoryId);
 
-        if(!existingCategories.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You are not allowed to update this category");
-        }
+        categoryRepo.findByIdAndUser(categoryId , user)
+                .orElseThrow(() -> new AccessDeniedException("You are not allowed to update this category"));
+//        if(!existingCategories.getUser().getId().equals(user.getId())) {
+//            throw new AccessDeniedException("You are not allowed to update this category");
+//        }
 
         existingCategories.setName(updatedCategory.getName());
         existingCategories.setType(updatedCategory.getType());
@@ -83,7 +99,11 @@ public class CategoryServiceImpl implements CategoryService {
         Categories saved = categoryRepo.save(existingCategories);
 //        logger.info("Category '{}' created for user '{}'", saved.getName(), user.getUsername());
 
-        return new CategoryResponseDTO(saved.getId(), saved.getName(), saved.getType());
+        return new CategoryResponseDTO(
+                saved.getId(),
+                saved.getName(),
+                saved.getType(),
+        null);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.example.expense_tracker.Controller;
 
 import com.example.expense_tracker.DTO.TransactionRequestDTO;
 import com.example.expense_tracker.DTO.TransactionResponseDTO;
+import com.example.expense_tracker.DTO.TransactionSummaryDTO;
 import com.example.expense_tracker.Service.TransactionServiceImpl;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,9 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 
-@RestController("/api/transaction")
+
+@RestController()
+@RequestMapping("/api/transaction")
 public class TransactionController {
 
     private final TransactionServiceImpl transactionService;
@@ -38,7 +41,7 @@ public class TransactionController {
 
     }
 
-    @GetMapping()
+    @GetMapping("/filter")
     public ResponseEntity<List<TransactionResponseDTO>> getFilteredTransactions(
             @RequestParam(required = false)  String type,
             @RequestParam(required = false)  String category,
@@ -52,6 +55,12 @@ into a LocalDate object using the ISO format */
 
         return ResponseEntity.ok(transactionService.getFilteredTransactions(username,type,category,startDate,endDate));
 
+    }
+    @GetMapping("/summary")
+    public TransactionSummaryDTO transactionSummary(Principal principal){
+
+        String username = principal.getName();
+       return transactionService.getTransactionSummary(username);
     }
 
 

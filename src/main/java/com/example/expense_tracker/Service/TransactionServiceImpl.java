@@ -2,6 +2,7 @@ package com.example.expense_tracker.Service;
 
 import com.example.expense_tracker.DTO.TransactionRequestDTO;
 import com.example.expense_tracker.DTO.TransactionResponseDTO;
+import com.example.expense_tracker.DTO.TransactionSummaryDTO;
 import com.example.expense_tracker.Exception.AccessDeniedException;
 import com.example.expense_tracker.Mapper.TransactionMapper;
 import com.example.expense_tracker.Model.Categories;
@@ -10,12 +11,13 @@ import com.example.expense_tracker.Model.Users;
 import com.example.expense_tracker.Repository.CategoryRepo;
 import com.example.expense_tracker.Repository.TransactionRepo;
 import com.example.expense_tracker.Repository.UserRepo;
-import org.springframework.data.repository.query.parser.Part;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -32,30 +34,32 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private Users getUsersByUsername(String username) {
-        return userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     private Categories getCategoryById(Long categoryId) {
-        return categoryRepo.findById(categoryId).orElseThrow(() -> new RuntimeException("Category not found"));
+        return categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
     }
 
     private Transaction getTransactionById(Long transactionId) {
-        return transactionRepo.findById(transactionId).orElseThrow(() -> new RuntimeException("transaction not found"));
+        return transactionRepo.findById(transactionId)
+                .orElseThrow(() -> new RuntimeException("transaction not found"));
     }
 
     @Override
-    public TransactionResponseDTO saveTransaction(String username, TransactionRequestDTO requestDTO) {
+    public TransactionResponseDTO saveTransaction(
+            String username, TransactionRequestDTO requestDTO) {
 
         Users user = getUsersByUsername(username);
-        Categories category = getCategoryById(requestDTO.getCategoryId());
+        Categories category= categoryRepo.findByIdAndUser(requestDTO.getCategoryId(),user)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found for user"));
 
-        Transaction transaction = new Transaction();
-        transaction.setAmount(requestDTO.getAmount());
-        transaction.setDate(requestDTO.getDate());
-        transaction.setType(requestDTO.getType());
-        transaction.setNote(requestDTO.getNote());
-        transaction.setUser(user);
-        transaction.setCategory(category);
+
+//        Categories category = getCategoryById(requestDTO.getCategoryId());
+
+        Transaction transaction= TransactionMapper.toEntity(requestDTO, category, user);
 
         Transaction saved = transactionRepo.save(transaction);
         return TransactionMapper.toDto(saved);
@@ -71,27 +75,32 @@ public class TransactionServiceImpl implements TransactionService {
 //       return user.map(users->transactionRepo.findByUser(users)).orElse(Collections.emptyList());   //lambda expression
         List<Transaction> transaction = transactionRepo.findByUser(user);
 
-       return   TransactionMapper.toDtoList(transaction);
+       return TransactionMapper.toDtoList(transaction);
 //        return transaction.stream().map(trans -> new TransactionResponseDTO(trans.getId(), trans.getAmount(), trans.getType(), trans.getDate(), trans.getNote(), trans.getCategory().getName())).toList();
 
 
     }
 
     @Override
-    public TransactionResponseDTO updateTransaction(String username, Long transactionId, TransactionRequestDTO requestDTO) {
+    public TransactionResponseDTO updateTransaction(
+            String username, Long transactionId, TransactionRequestDTO requestDTO) {
 
         Users user = getUsersByUsername(username);
         Transaction existingTransaction = getTransactionById(transactionId);
         Categories category = getCategoryById(requestDTO.getCategoryId());
 
-        if (!existingTransaction.getUser().getId().equals(user.getId())) {
+        if (!existingTransaction
+                .getUser()
+                .getId()
+                .equals(user.getId())) {
             throw new AccessDeniedException("you are not allowed to update this");
         }
 
         existingTransaction.setCategory(category);
         existingTransaction.setAmount(requestDTO.getAmount());
         existingTransaction.setDate(requestDTO.getDate());
-        existingTransaction.setType(requestDTO.getType());
+        existingTransaction.setType(category.getType());
+
 
         Transaction saved = transactionRepo.save(existingTransaction);
          return TransactionMapper.toDto(saved);
@@ -115,7 +124,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionResponseDTO> getFilteredTransactions(String username, String type, String category, LocalDate startDate, LocalDate endDate) {
+    public List<TransactionResponseDTO> getFilteredTransactions(
+            String username, String type, String category, LocalDate startDate, LocalDate endDate) {
         Users user = getUsersByUsername(username);
 
         List<Transaction> transactions = transactionRepo.findByUser(user);
@@ -139,4 +149,36 @@ public class TransactionServiceImpl implements TransactionService {
                 .toList();
 
     }
+
+    @Override
+
+    public TransactionSummaryDTO getTransactionSummary(String username) {
+        Users user = getUsersByUsername(username);
+        List<Transaction> transactions = transactionRepo.findByUser(user);
+
+        BigDecimal totalIncome = BigDecimal.ZERO;
+        BigDecimal totalExpense = BigDecimal.ZERO;
+
+        Map<String, BigDecimal> monthlySummary = new HashMap<>();
+
+        for (Transaction transaction : transactions) {
+            BigDecimal amount = transaction.getAmount();
+            String key = transaction.getDate().getYear() + "-" + String.format("%02d", transaction.getDate().getMonthValue());
+
+            // Monthly summary
+            monthlySummary.put(key, monthlySummary.getOrDefault(key, BigDecimal.ZERO).add(amount));
+
+            // Type summary
+            if (transaction.getType() == TransactionType.INCOME) {
+                totalIncome = totalIncome.add(amount);
+            } else if (transaction.getType() == TransactionType.EXPENSE) {
+                totalExpense = totalExpense.add(amount);
+            }
+        }
+
+        BigDecimal netBalance = totalIncome.subtract(totalExpense);
+
+        return new TransactionSummaryDTO(totalIncome, totalExpense, netBalance, monthlySummary);
+    }
+
 }

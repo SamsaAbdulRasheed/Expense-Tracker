@@ -3,6 +3,9 @@ package com.example.expense_tracker.DTO;
 import com.example.expense_tracker.Model.Categories;
 import com.example.expense_tracker.Model.Transaction;
 import com.example.expense_tracker.Model.Users;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +19,7 @@ public class TransactionRequestDTO {
     private LocalDate date;
     private String note	;
     private Long categoryId;
+
 
 
 }

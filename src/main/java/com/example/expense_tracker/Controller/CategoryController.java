@@ -6,6 +6,7 @@ import com.example.expense_tracker.Service.CategoryServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController()
@@ -18,34 +19,39 @@ public class CategoryController {
         this.categoryService= categoryService;
     }
 
-    @PostMapping("/{username}")
+    @PostMapping()
     public ResponseEntity<CategoryResponseDTO> createCategory(
-            @PathVariable String username,
+            Principal principal,
             @RequestBody CategoryRequestDTO requestDTO){
+        String username=principal.getName();
         CategoryResponseDTO dto= categoryService.CreateCategory(username,requestDTO);
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/{username}")
+    @GetMapping()
     public ResponseEntity<List<CategoryResponseDTO>> getAllCategories(
-            @PathVariable String username){
+            Principal principal){
+        String username=principal.getName();
         List<CategoryResponseDTO> categories= categoryService.getAllCategories(username);
         return ResponseEntity.ok(categories);
     }
 
-    @PutMapping("/{username}/{categoryId}")
+    @PutMapping("/{categoryId}")
     public ResponseEntity<String> updateCategory(
-            @PathVariable String username,
+            Principal principal,
             @PathVariable Long categoryId,
-            @RequestBody CategoryRequestDTO updatedCategory){
+            @RequestBody CategoryRequestDTO updatedCategory
+            ){
+        String username=principal.getName();
         CategoryResponseDTO category= categoryService.updateCategory(username,categoryId,updatedCategory);
         return ResponseEntity.ok("Category updated successfully: " + category);
     }
 
-    @DeleteMapping("/{username}/{categoryId}")
+    @DeleteMapping("/{categoryId}")
     public ResponseEntity<String> deleteCategory(
-            @PathVariable String username,
+            Principal principal ,
             @PathVariable Long categoryId){
+        String username = principal.getName();
             categoryService.deleteCategory(username,categoryId);
             return ResponseEntity.ok("Category Deleted Successfully");
 

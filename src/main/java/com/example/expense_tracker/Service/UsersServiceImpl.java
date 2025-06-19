@@ -1,9 +1,12 @@
 package com.example.expense_tracker.Service;
 
 import com.example.expense_tracker.DTO.CategoryResponseDTO;
+import com.example.expense_tracker.DTO.TransactionResponseDTO;
 import com.example.expense_tracker.DTO.UserRequestDTO;
 import com.example.expense_tracker.DTO.UserResponseDTO;
 import com.example.expense_tracker.Exception.AccessDeniedException;
+import com.example.expense_tracker.Mapper.TransactionMapper;
+import com.example.expense_tracker.Model.Transaction;
 import com.example.expense_tracker.Model.Users;
 import com.example.expense_tracker.Repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,30 +55,49 @@ public class UsersServiceImpl implements UserService {
             throw new AccessDeniedException("Email already in use");
         }
         Users saved = userRepo.save(user);
-        List<CategoryResponseDTO> category = saved.getCategories().stream()
-                .map(cat -> new CategoryResponseDTO(cat.getId(), cat.getName(), cat.getType()))
-                .toList();
 
-        return new UserResponseDTO(saved.getId(), saved.getUsername(), saved.getEmail(), saved.getPassword(), saved.getRole(), category);
+
+        return new UserResponseDTO(
+                saved.getId(),
+                saved.getUsername(),
+                saved.getEmail(),
+                saved.getPassword(),
+                saved.getRole(),
+                null,
+                null
+                );
     }
 
     @Override
     public List<UserResponseDTO> getAllUsers() {
         List<Users> user = userRepo.findAll();
 
-        return  user.stream()
+        return user
+                .stream()
                 .map(ls -> {
-                    List<CategoryResponseDTO> category = ls.getCategories().stream()
+                    List<CategoryResponseDTO> category = ls.getCategories()
+                            .stream()
                             .map(cat ->
-                                    new CategoryResponseDTO(cat.getId(), cat.getName(), cat.getType()))
+                                     new CategoryResponseDTO(
+                                            cat.getId(),
+                                            cat.getName(),
+                                            cat.getType(),
+                                             null))
                             .toList();
+
+                    List<TransactionResponseDTO> transaction=ls.getTransaction()
+                            .stream()
+                            .map(TransactionMapper::toDto)
+                            .toList();
+
                     return new UserResponseDTO(
                                ls.getId(),
                                ls.getUsername(),
                                ls.getEmail(),
                                ls.getPassword(),
                                ls.getRole(),
-                               category);
+                               category,
+                            transaction);
 
                 }).toList();
 
@@ -94,10 +116,22 @@ public class UsersServiceImpl implements UserService {
 
         Users saved = userRepo.save(user);
         List<CategoryResponseDTO> category = saved.getCategories().stream()
-                .map(cat -> new CategoryResponseDTO(cat.getId(), cat.getName(), cat.getType()))
+                .map(cat -> new CategoryResponseDTO(
+                        cat.getId(),
+                        cat.getName(),
+                        cat.getType(),
+                        null ))
                 .toList();
 
-        return new UserResponseDTO(saved.getId(), saved.getUsername(), saved.getEmail(), saved.getPassword(), saved.getRole(), category);
+
+        return new UserResponseDTO(
+                saved.getId(),
+                saved.getUsername(),
+                saved.getEmail(),
+                saved.getPassword(),
+                saved.getRole(),
+                category,
+                null);
 
     }
 
@@ -108,6 +142,7 @@ public class UsersServiceImpl implements UserService {
         userRepo.delete(user);
     }
 
+    @Override
     public String verify(Users user) {
 
         Authentication authentication = authManager.authenticate(
