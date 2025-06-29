@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--Add New Category-->
+<div id="add-category-section">
+    Category name: <input type="text" id="category" placeholder="Category Name"/><br>
+    Category Type: <input type="text" id="type" placeholder="Category Type"/><br>
+
+    <button id="add-category">Add New Category</button>
+</div>
+
+<form id="transaction-form">
+<pre>
+   Category <select id="cat-list">
+
+
+    </select>
+    Amount  <input type="text" id="amount" placeholder="Amount" required/>
+    <input type="date" id="date" required/>
+    <textarea id="note" placeholder="Note (optional)"></textarea>
+    <button type="submit">Add Transaction</button>
+    </pre>
+</form>
+<script src="js/dashboard.js"></script>
+<script src="js/transaction.js"></script>
+
+</body>
+</html>

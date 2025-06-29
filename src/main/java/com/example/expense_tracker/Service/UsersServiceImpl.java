@@ -6,13 +6,14 @@ import com.example.expense_tracker.DTO.UserRequestDTO;
 import com.example.expense_tracker.DTO.UserResponseDTO;
 import com.example.expense_tracker.Exception.AccessDeniedException;
 import com.example.expense_tracker.Mapper.TransactionMapper;
-import com.example.expense_tracker.Model.Transaction;
 import com.example.expense_tracker.Model.Users;
 import com.example.expense_tracker.Repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -145,13 +146,17 @@ public class UsersServiceImpl implements UserService {
     @Override
     public String verify(Users user) {
 
-        Authentication authentication = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+        try {
+            Authentication authentication = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 
-        if(authentication.isAuthenticated()){
-            return jwtService.generateToken(user.getUsername());
+            if(authentication.isAuthenticated()){
+                return jwtService.generateToken(user.getUsername());
+            }
+
+            throw new RuntimeException("Authentication failed");
+        } catch (Exception e) {
+            throw new BadCredentialsException("Invalid username or password");
         }
-
-        return "fail";
     }
 }

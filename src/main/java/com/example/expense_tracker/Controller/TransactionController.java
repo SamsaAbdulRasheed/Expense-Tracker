@@ -3,6 +3,7 @@ package com.example.expense_tracker.Controller;
 import com.example.expense_tracker.DTO.TransactionRequestDTO;
 import com.example.expense_tracker.DTO.TransactionResponseDTO;
 import com.example.expense_tracker.DTO.TransactionSummaryDTO;
+import com.example.expense_tracker.Model.Transaction;
 import com.example.expense_tracker.Service.TransactionServiceImpl;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,7 @@ public class TransactionController {
     public ResponseEntity<List<TransactionResponseDTO>> getFilteredTransactions(
             @RequestParam(required = false)  String type,
             @RequestParam(required = false)  String category,
-/*@DateTimeFormat annotation tells Spring to parse a date string from the HTTP request
+    /*@DateTimeFormat annotation tells Spring to parse a date string from the HTTP request
 into a LocalDate object using the ISO format */
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,

@@ -13,6 +13,7 @@ import com.example.expense_tracker.Repository.TransactionRepo;
 import com.example.expense_tracker.Repository.UserRepo;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -128,6 +129,18 @@ public class TransactionServiceImpl implements TransactionService {
             String username, String type, String category, LocalDate startDate, LocalDate endDate) {
         Users user = getUsersByUsername(username);
 
+        boolean noFilter =
+                category == null || category.isBlank() &&
+                type == null || type.isBlank() &&
+                startDate == null &&
+                endDate == null;
+
+        if(noFilter){
+            return transactionRepo.findTop10ByUserOrderByDateDesc(user).stream()
+                    .map(TransactionMapper::toDto)
+                                .toList();
+        }
+
         List<Transaction> transactions = transactionRepo.findByUser(user);
 
         Transaction.TransactionType enumType = null;
@@ -142,9 +155,9 @@ public class TransactionServiceImpl implements TransactionService {
         final Transaction.TransactionType finalEnumType = enumType;
         return transactions.stream()
                 .filter(t -> finalEnumType == null || t.getType() == finalEnumType)
-                .filter(t -> category == null || t.getCategory().getName().equalsIgnoreCase(category))
+                .filter(t -> category == null   || category.isBlank() || t.getCategory().getName().equalsIgnoreCase(category))
                 .filter(t -> startDate == null || !t.getDate().isBefore(startDate))
-                .filter(t -> startDate == null || !t.getDate().isAfter(endDate))
+                .filter(t -> endDate == null || !t.getDate().isAfter(endDate))
                 .map(TransactionMapper::toDto)
                 .toList();
 
@@ -162,21 +175,25 @@ public class TransactionServiceImpl implements TransactionService {
         Map<String, BigDecimal> monthlySummary = new HashMap<>();
 
         for (Transaction transaction : transactions) {
-            BigDecimal amount = transaction.getAmount();
+            BigDecimal amount = BigDecimal.valueOf(transaction.getAmount());
             String key = transaction.getDate().getYear() + "-" + String.format("%02d", transaction.getDate().getMonthValue());
 
             // Monthly summary
             monthlySummary.put(key, monthlySummary.getOrDefault(key, BigDecimal.ZERO).add(amount));
 
             // Type summary
-            if (transaction.getType() == TransactionType.INCOME) {
+            if (transaction.getType() == Transaction.TransactionType.INCOME) {
                 totalIncome = totalIncome.add(amount);
-            } else if (transaction.getType() == TransactionType.EXPENSE) {
+            } else if (transaction.getType() == Transaction.TransactionType.EXPENSE) {
                 totalExpense = totalExpense.add(amount);
             }
         }
 
         BigDecimal netBalance = totalIncome.subtract(totalExpense);
+        if(netBalance.compareTo(BigDecimal.ZERO)<0){
+            netBalance=BigDecimal.ZERO;
+
+        }
 
         return new TransactionSummaryDTO(totalIncome, totalExpense, netBalance, monthlySummary);
     }

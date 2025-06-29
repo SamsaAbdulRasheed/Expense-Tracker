@@ -30,8 +30,10 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody Users user){
-        return usersService.verify(user);
+    public ResponseEntity<String> login(@RequestBody Users user){
+        return ResponseEntity.ok().body( usersService.verify(user));
+//        String token = usersService.verify(user);  // should return the JWT
+//        return ResponseEntity.ok().body(token);
     }
 
     @PutMapping("/user")

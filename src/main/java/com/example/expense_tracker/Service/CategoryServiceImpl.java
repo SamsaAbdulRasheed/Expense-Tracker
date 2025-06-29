@@ -6,6 +6,7 @@ import com.example.expense_tracker.DTO.TransactionResponseDTO;
 import com.example.expense_tracker.Exception.AccessDeniedException;
 import com.example.expense_tracker.Mapper.TransactionMapper;
 import com.example.expense_tracker.Model.Categories;
+import com.example.expense_tracker.Model.Transaction;
 import com.example.expense_tracker.Model.Users;
 import com.example.expense_tracker.Repository.CategoryRepo;
 import com.example.expense_tracker.Repository.UserRepo;
@@ -41,6 +42,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryResponseDTO CreateCategory(String username, CategoryRequestDTO requestDTO) {
         Users user= getUserByUsername(username);
+
+
 
         Categories category=new Categories();
         category.setName(requestDTO.getName());

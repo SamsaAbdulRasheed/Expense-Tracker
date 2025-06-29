@@ -18,7 +18,6 @@ public class CategoryResponseDTO {
     private Long id;
     private String name;
     private Transaction.TransactionType type;
-//  private UserResponseDTO user;
     private List<TransactionResponseDTO> transaction;
 
     @Override

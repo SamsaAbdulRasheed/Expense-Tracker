@@ -1,8 +1,6 @@
 package com.example.expense_tracker.DTO;
 
 import com.example.expense_tracker.Model.Transaction;
-import com.example.expense_tracker.Model.Users;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

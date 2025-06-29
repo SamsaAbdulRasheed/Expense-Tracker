@@ -2,6 +2,7 @@ package com.example.expense_tracker.Service;
 
 import com.example.expense_tracker.DTO.TransactionRequestDTO;
 import com.example.expense_tracker.DTO.TransactionResponseDTO;
+import com.example.expense_tracker.DTO.TransactionSummaryDTO;
 import com.example.expense_tracker.Model.Transaction;
 
 import java.time.LocalDate;
@@ -16,5 +17,5 @@ public interface TransactionService {
     void deleteTransaction(String username,Long transactionId);
     List<TransactionResponseDTO> getFilteredTransactions(String username, String type, String category, LocalDate startDate, LocalDate endDate);
 
-    Map getTransactionSummary(String username);
+    TransactionSummaryDTO getTransactionSummary(String username);
 }
